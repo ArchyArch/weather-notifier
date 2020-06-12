@@ -35,7 +35,7 @@ def stringify_forecast(forecast_pair):
     date = forecast_pair[1]['dt_txt'].split(' ')[0]
     return f"Weather for {city} on {date}:\n🌡️️: {temperature_night}°C night / {temperature_day}°C day\n🌤️: {weather_description}\n☁️: {cloudiness}%\n"
 
-city = 'Wrocław'
+city = os.environ['CITY']
 app_id = os.environ['APP_ID']
 url = f'http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={app_id}&units=metric'
 

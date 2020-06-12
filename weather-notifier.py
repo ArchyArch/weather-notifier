@@ -1,10 +1,11 @@
 import re
 import requests
+import os
 
 def send_sms(phone_number, message):
-    account_sid = '...........................'
-    token = '.........................'
-    from_number = '+.............'
+    account_sid = os.environ['ACCOUNT_SID']
+    token = os.environ['TOKEN']
+    from_number = os.environ['FROM_NUMBER']
     twilio_sms_api_url = f'https://{account_sid}:{token}@api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json'
     parameters = {'From': from_number, 'To': phone_number, 'Body': message}
     response = requests.post(twilio_sms_api_url, data=parameters).json()
@@ -32,10 +33,11 @@ def stringify_forecast(forecast_pair):
     weather_description = forecast_pair[1]['weather'][0]['description']
     cloudiness = forecast_pair[1]['clouds']['all']
     date = forecast_pair[1]['dt_txt'].split(' ')[0]
-    return f"Weather for {city} on {date}:\n🌡️️: {temperature_night}°C / {temperature_day}°C\n🌤️: {weather_description}\n☁️: {cloudiness}%\n"
+    return f"Weather for {city} on {date}:\n🌡️️: {temperature_night}°C night / {temperature_day}°C day\n🌤️: {weather_description}\n☁️: {cloudiness}%\n"
 
 city = 'Wrocław'
-url = f'http://api.openweathermap.org/data/2.5/forecast?q={city}&appid=...............................&units=metric'
+app_id = os.environ['APP_ID']
+url = f'http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={app_id}&units=metric'
 
 forecasts = requests.get(url).json()
 choose_12 = list(filter(check_if_12, forecasts['list']))
@@ -47,4 +49,4 @@ message = ''
 for forecast_pair in forecast_pairs:
     message += stringify_forecast(forecast_pair)
 
-print(message)
+send_sms(os.environ['TO_NUMBER'], message)
